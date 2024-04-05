@@ -1,0 +1,6 @@
+@DeliveryCostCalculator.Server_HostAddress = http://localhost:5030
+
+GET {{DeliveryCostCalculator.Server_HostAddress}}/weatherforecast/
+Accept: application/json
+
+###
