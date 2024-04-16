@@ -2,6 +2,7 @@
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
 using DeliveryCostCalculator.Server.Features.Deliveries.Contracts;
+using DeliveryCostCalculator.Server.Features.Deliveries.Services;
 using DeliveryCostCalculator.Server.Shared;
 using FluentValidation;
 using MediatR;
@@ -35,17 +36,15 @@ public static class CreateDelivery
 
     internal sealed class Handler : IRequestHandler<Command, Result<int>>
     {
-        private readonly DataContext _dbContext;
+        private readonly IDeliveriesService _deliveriesService;
         private readonly IValidator<Command> _validator;
         //   private readonly IMapper _mapper;
 
-        public Handler(DataContext dbContext, IValidator<Command> validator)//, IMapper mapper)
+        public Handler(IDeliveriesService deliveriesService, IValidator<Command> validator)
         {
-            _dbContext = dbContext;
+            _deliveriesService = deliveriesService;
             _validator = validator;
-            //  _mapper = mapper;
         }
-
 
         public async Task<Result<int>> Handle(Command request, CancellationToken cancellationToken)
         {
@@ -55,24 +54,10 @@ public static class CreateDelivery
                 return Result.Failure<int>(new Error(
                     "CreateDelivery.Validation",
                     validationResult.ToString()));
-            }
+            }           
+            var delivery = await _deliveriesService.CreateDeliveryAsync(request);
 
-            var delivery = new Delivery()
-            {
-                Recipient = request.Recipient,
-                Distance = request.Distance,
-                Weight = request.Weight,
-                CountryId = request.CountryId,
-                DeliveryServiceId = request.DeliveryServiceId,
-                Cost = request.Cost
-            };
-
-            // = _mapper.Map<DeliveryService>(request);
-
-            _dbContext.Add(delivery);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            return delivery.Id;
+            return delivery;
         }
     }
 }

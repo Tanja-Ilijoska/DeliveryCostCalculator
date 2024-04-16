@@ -2,6 +2,7 @@
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
 using DeliveryCostCalculator.Server.Features.Deliveries.Contracts;
+using DeliveryCostCalculator.Server.Features.Deliveries.Services;
 using DeliveryCostCalculator.Server.Shared;
 using FluentValidation;
 using MediatR;
@@ -40,31 +41,19 @@ public static class UpdateDelivery
 
     internal sealed class Handler : IRequestHandler<Command, Result<DeliveryDto>>
     {
-        private readonly DataContext _dbContext;
+        private readonly IDeliveriesService _deliveriesService;
         private readonly IValidator<Command> _validator;
-        //   private readonly IMapper _mapper;
 
-        public Handler(DataContext dbContext, IValidator<Command> validator)//, IMapper mapper)
+        public Handler(IDeliveriesService deliveriesService, IValidator<Command> validator)
         {
-            _dbContext = dbContext;
+            _deliveriesService = deliveriesService;
             _validator = validator;
-            //  _mapper = mapper;
         }
 
 
         public async Task<Result<DeliveryDto>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var command = new UpdateDelivery.Command
-            {
-                Id = request.Id,
-                Weight = request.Weight,
-                CountryId = request.CountryId,
-                DeliveryServiceId = request.DeliveryServiceId,
-                Cost = request.Cost,
-                Recipient = request.Recipient,
-                Distance = request.Distance
-            };
-
+          
             var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
             {
@@ -73,40 +62,9 @@ public static class UpdateDelivery
                     validationResult.ToString()));
             }
 
-            var delivery = await _dbContext.Deliveries.Where(x => x.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
+            var deliveryResponse = await _deliveriesService.UpdateDelivery(request);
 
-            if (delivery is null)
-            {
-                return Result.Failure<DeliveryDto>(new Error(
-                    "GetDeliveryResponse.Null",
-                    "The Delivery with the specified ID was not found"));
-            }
-            else
-            {
-                delivery.Distance = request.Distance;
-                delivery.Recipient = request.Recipient;
-                delivery.Weight = request.Weight;
-                delivery.CountryId = request.CountryId;
-                delivery.DeliveryServiceId = request.DeliveryServiceId;
-            }
-
-            // = _mapper.Map<DeliveryService>(request);
-
-            _dbContext.Update(delivery);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            DeliveryDto deliveryResponse = new DeliveryDto()
-            {
-                Id = delivery.Id,
-                Distance = delivery.Distance,
-                Recipient = delivery.Recipient,
-                Weight = delivery.Weight,
-                CountryId = delivery.CountryId,
-                DeliveryServiceId = delivery.DeliveryServiceId,
-                Cost = delivery.Cost
-        };
-
-            return deliveryResponse;
+            return  deliveryResponse;
         }
 
     }

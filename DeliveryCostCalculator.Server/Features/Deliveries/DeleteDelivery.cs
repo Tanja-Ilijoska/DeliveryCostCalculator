@@ -1,5 +1,6 @@
 ﻿using Carter;
 using DeliveryCostCalculator.Server.Data;
+using DeliveryCostCalculator.Server.Features.Deliveries.Services;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -17,28 +18,16 @@ public static class DeleteDelivery
 
     internal sealed class Handler : IRequestHandler<Query, Result<bool>>
     {
-        private readonly DataContext _dbContext;
+        private readonly IDeliveriesService _deliveriesService;
 
-        public Handler(DataContext dbContext)
+        public Handler(IDeliveriesService deliveriesService)
         {
-            _dbContext = dbContext;
+            _deliveriesService = deliveriesService;
         }
 
         public async Task<Result<bool>> Handle(Query request, CancellationToken cancellationToken)
-        {
-            var delivery = await _dbContext.Deliveries.Where(x => x.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
-
-            if (delivery is null)
-            {
-                return Result.Failure<bool>(new Error(
-                    "GetDeliveryResponse.Null",
-                    "The Delivery with the specified ID was not found"));
-            }
-
-            _dbContext.Remove(delivery);
-            _dbContext.SaveChangesAsync(cancellationToken).Wait();
-
-            return true;
+        {            
+            return await _deliveriesService.DeleteDelivery(request.Id);
         }
 
     }

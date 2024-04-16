@@ -1,5 +1,7 @@
 ﻿using Carter;
 using DeliveryCostCalculator.Server.Data;
+using DeliveryCostCalculator.Server.Features.Countries.Services;
+using DeliveryCostCalculator.Server.Features.Deliveries.Services;
 using DeliveryCostCalculator.Server.Features.DeliveryServices.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
@@ -17,23 +19,16 @@ public static class GetDeliveryService
 
     internal sealed class Handler : IRequestHandler<Query, Result<DeliveryServiceDto>>
     {
-        private readonly DataContext _dbContext;
+        private readonly IDeliveryServiceService _deliveryServiceService;
 
-        public Handler(DataContext dbContext)
+        public Handler(IDeliveryServiceService deliveryServiceService)
         {
-            _dbContext = dbContext;
+            _deliveryServiceService = deliveryServiceService;
         }
 
         public async Task<Result<DeliveryServiceDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var deliveryServiceResponse = await _dbContext.DeliveryServices
-                                                    .Include(x => x.DeliveryServiceProperties)
-                                                    .Where(x => x.Id == request.Id).Select(x => new DeliveryServiceDto
-                                                        {
-                                                            Id = request.Id,
-                                                            Name = x.Name,
-                                                            DeliveryServiceProperties = x.DeliveryServiceProperties.ToList()
-                                                        }).FirstOrDefaultAsync(cancellationToken);
+            var deliveryServiceResponse = await _deliveryServiceService.GetDeliveryService(request.Id);
 
             if (deliveryServiceResponse is null)
             {

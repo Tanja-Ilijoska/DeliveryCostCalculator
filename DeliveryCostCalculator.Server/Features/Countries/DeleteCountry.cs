@@ -1,5 +1,6 @@
 ﻿using Carter;
 using DeliveryCostCalculator.Server.Data;
+using DeliveryCostCalculator.Server.Features.Countries.Services;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -8,7 +9,6 @@ namespace DeliveryCostCalculator.Server.Features.Countries;
 
 public static class DeleteCountry
 {
-
     public class Query : IRequest<Result<bool>>
     {
         public int Id { get; set; }
@@ -16,30 +16,17 @@ public static class DeleteCountry
 
     internal sealed class Handler : IRequestHandler<Query, Result<bool>>
     {
-        private readonly DataContext _dbContext;
+        private readonly ICountriesService _countriesService;
 
-        public Handler(DataContext dbContext)
+        public Handler(ICountriesService countriesService)
         {
-            _dbContext = dbContext;
+            _countriesService = countriesService;
         }
 
         public async Task<Result<bool>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var country = await _dbContext.Country.Where(x => x.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
-
-            if (country is null)
-            {
-                return Result.Failure<bool>(new Error(
-                    "GetCountryResponse.Null",
-                    "The Country with the specified ID was not found"));
-            }
-
-            _dbContext.Remove(country);
-            _dbContext.SaveChangesAsync(cancellationToken).Wait();
-
-            return true;
+            return await _countriesService.DeleteCountry(request.Id);
         }
-
     }
 }
 

@@ -1,9 +1,8 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Features.Deliveries.Contracts;
+using DeliveryCostCalculator.Server.Features.Deliveries.Services;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
-using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryCostCalculator.Server.Features.Deliveries;
 
@@ -16,25 +15,17 @@ public static class GetDeliveries
 
     internal sealed class Handler : IRequestHandler<Query, Result<List<DeliveryDto>>>
     {
-        private readonly DataContext _dbContext;
+        private readonly IDeliveriesService _deliveriesService;
 
-        public Handler(DataContext dbContext)
+        public Handler(IDeliveriesService deliveriesService)
         {
-            _dbContext = dbContext;
+            _deliveriesService = deliveriesService;
         }
+
 
         public async Task<Result<List<DeliveryDto>>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var deliveryResponse = await _dbContext.Deliveries.Select(x => new DeliveryDto
-            {
-                Id = x.Id,
-                Weight = x.Weight,
-                CountryId = x.CountryId,
-                DeliveryServiceId = x.DeliveryServiceId,
-                Cost = x.Cost,
-                Recipient = x.Recipient,
-                Distance = x.Distance,
-            }).ToListAsync(cancellationToken);
+            var deliveryResponse = await _deliveriesService.GetDeliveriesAsync();
 
             if (deliveryResponse is null)
             {
@@ -43,10 +34,8 @@ public static class GetDeliveries
                     "The Delivery Response was not found"));
             }
 
-            //todo
             return deliveryResponse;
         }
-
     }
 }
 

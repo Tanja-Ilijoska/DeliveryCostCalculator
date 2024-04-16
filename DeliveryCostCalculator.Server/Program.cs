@@ -2,6 +2,8 @@ using Carter;
 using DeliveryCostCalculator.Server.Data;
 using Microsoft.EntityFrameworkCore;
 using FluentValidation;
+using DeliveryCostCalculator.Server.Features.Countries.Services;
+using DeliveryCostCalculator.Server.Features.Deliveries.Services;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -29,6 +31,10 @@ builder.Services.AddMediatR(config =>
 builder.Services.AddCarter();
 
 builder.Services.AddValidatorsFromAssembly(assembly);
+
+builder.Services.AddScoped<ICountriesService, CountriesService>();
+builder.Services.AddScoped<IDeliveriesService, DeliveriesService>();
+builder.Services.AddScoped<IDeliveryServiceService, DeliveryServiceService>();
 
 
 var app = builder.Build();

@@ -1,6 +1,8 @@
 ﻿using Carter;
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
+using DeliveryCostCalculator.Server.Features.Countries.Services;
+using DeliveryCostCalculator.Server.Features.Deliveries.Services;
 using DeliveryCostCalculator.Server.Features.DeliveryServices.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using FluentValidation;
@@ -30,15 +32,13 @@ public static class CreateDeliveryService
 
     internal sealed class Handler : IRequestHandler<Command, Result<int>>
     {
-        private readonly DataContext _dbContext;
+        private readonly IDeliveryServiceService _deliveryServiceService;
         private readonly IValidator<Command> _validator;
-     //   private readonly IMapper _mapper;
 
-        public Handler(DataContext dbContext, IValidator<Command> validator)//, IMapper mapper)
+        public Handler(IDeliveryServiceService deliveryServiceService, IValidator<Command> validator)
         {
-            _dbContext = dbContext;
+            _deliveryServiceService = deliveryServiceService;
             _validator = validator;
-          //  _mapper = mapper;
         }
 
 
@@ -49,36 +49,12 @@ public static class CreateDeliveryService
             {
                 return Result.Failure<int>(new Error(
                     "CreateDeliveryService.Validation",
-                    validationResult.ToString()));
+                validationResult.ToString()));
             }
 
-            var deliveryService = new DeliveryService()
-            {
-                Name = request.Name,
-                Formula = request.Formula ?? string.Empty,
-            }; 
-            
-            // = _mapper.Map<DeliveryService>(request);
+            var deliveryService =  _deliveryServiceService.CreateDeliveryService(request);
 
-            _dbContext.Add(deliveryService);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            foreach (var ds in request.DeliveryServiceProperties)
-            {
-                var dsProperty = new DeliveryServiceProperties()
-                {
-                    DeliveryServiceId = deliveryService.Id,
-                    Name = ds.Name,
-                    Operation = ds.Operation,
-                    Value = ds.Value,
-                    Order = ds.Order,
-                };
-                _dbContext.Add(dsProperty);
-            }
-
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            return deliveryService.Id;
+            return deliveryService;
         }
     }    
 }

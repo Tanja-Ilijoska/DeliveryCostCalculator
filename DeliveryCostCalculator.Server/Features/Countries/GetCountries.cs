@@ -1,6 +1,7 @@
 ﻿using Carter;
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Features.Countries.Contracts;
+using DeliveryCostCalculator.Server.Features.Countries.Services;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Cors;
@@ -23,22 +24,16 @@ public static class GetCountries
 
     internal sealed class Handler : IRequestHandler<Query, Result<List<CountryDto>>>
     {
-        private readonly DataContext _dbContext;
+        private readonly ICountriesService _countriesService;
 
-        public Handler(DataContext dbContext)
+        public Handler(ICountriesService countriesService)
         {
-            _dbContext = dbContext;
+            _countriesService = countriesService;
         }
 
         public async Task<Result<List<CountryDto>>> Handle(Query request, CancellationToken cancellationToken)
-        {            
-            var countryResponse = await _dbContext.Country.Select(x => new CountryDto
-            {
-                Id = x.Id,
-                Name = x.Name,
-                CostCorrectionPercentage = x.CostCorrectionPercentage,
-                CountryType = x.CountryType,
-            }).ToListAsync(cancellationToken);
+        {
+            var countryResponse = _countriesService.GetCountriesAsync();
 
             if (countryResponse is null)
             {
@@ -47,8 +42,7 @@ public static class GetCountries
                     "The Country Response was not found"));
             }
 
-            //todo
-            return countryResponse;
+            return await countryResponse;
         }
 
     }

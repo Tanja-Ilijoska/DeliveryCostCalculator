@@ -2,6 +2,7 @@
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
 using DeliveryCostCalculator.Server.Features.Countries.Contracts;
+using DeliveryCostCalculator.Server.Features.Countries.Services;
 using DeliveryCostCalculator.Server.Shared;
 using FluentValidation;
 using MediatR;
@@ -27,27 +28,17 @@ public static class CreateCountry
 
     internal sealed class Handler : IRequestHandler<Command, Result<int>>
     {
-        private readonly DataContext _dbContext;
+        private readonly ICountriesService _countriesService;
         private readonly IValidator<Command> _validator;
-        //   private readonly IMapper _mapper;
 
-        public Handler(DataContext dbContext, IValidator<Command> validator)//, IMapper mapper)
+        public Handler(ICountriesService countriesService, IValidator<Command> validator)
         {
-            _dbContext = dbContext;
+            _countriesService = countriesService;
             _validator = validator;
-            //  _mapper = mapper;
         }
-
 
         public async Task<Result<int>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var command = new CreateCountry.Command
-            {
-                Name = request.Name,
-                CostCorrectionPercentage = request.CostCorrectionPercentage,
-                CountryType = request.CountryType
-            };
-
             var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
             {
@@ -56,19 +47,7 @@ public static class CreateCountry
                     validationResult.ToString()));
             }
 
-            var country = new Country()
-            {
-                Name = request.Name,
-                CountryType = request.CountryType.ToString(),
-                CostCorrectionPercentage = request.CostCorrectionPercentage
-            };
-
-            // = _mapper.Map<DeliveryService>(request);
-
-            _dbContext.Add(country);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            return country.Id;
+            return _countriesService.CreateCountry(request);         
         }
     }
 

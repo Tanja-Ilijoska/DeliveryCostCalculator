@@ -2,6 +2,7 @@
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
 using DeliveryCostCalculator.Server.Features.Deliveries.Contracts;
+using DeliveryCostCalculator.Server.Features.Deliveries.Services;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Cors;
@@ -20,25 +21,17 @@ public static class GetDelivery
 
     internal sealed class Handler : IRequestHandler<Query, Result<DeliveryDto>>
     {
-        private readonly DataContext _dbContext;
+        private readonly IDeliveriesService _deliveriesService;
 
-        public Handler(DataContext dbContext)
+        public Handler(IDeliveriesService deliveriesService)
         {
-            _dbContext = dbContext;
+            _deliveriesService = deliveriesService;
         }
+
 
         public async Task<Result<DeliveryDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var delivery = await _dbContext.Deliveries.Where(x => x.Id == request.Id).Select(x => new DeliveryDto
-            {
-                Id = x.Id,
-                Recipient = x.Recipient,
-                Cost = x.Cost,
-                CountryId = x.CountryId,
-                DeliveryServiceId = x.DeliveryServiceId,
-                Distance = x.Distance,
-                Weight = x.Weight
-            }).FirstOrDefaultAsync(cancellationToken);
+            var delivery = _deliveriesService.GetDelivery(request.Id);
 
             if (delivery is null)
             {
@@ -47,7 +40,7 @@ public static class GetDelivery
                     "The Delivery with the specified ID was not found"));
             }
 
-            return delivery;
+            return await delivery;
         }
 
     }

@@ -2,6 +2,7 @@
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
 using DeliveryCostCalculator.Server.Features.Countries.Contracts;
+using DeliveryCostCalculator.Server.Features.Countries.Services;
 using DeliveryCostCalculator.Server.Shared;
 using FluentValidation;
 using MediatR;
@@ -30,28 +31,18 @@ public static class UpdateCountry
 
     internal sealed class Handler : IRequestHandler<Command, Result<CountryDto>>
     {
-        private readonly DataContext _dbContext;
-        private readonly IValidator<Command> _validator;
-        //   private readonly IMapper _mapper;
+        private readonly IValidator<Command> _validator; 
+        private readonly ICountriesService _countriesService;
 
-        public Handler(DataContext dbContext, IValidator<Command> validator)//, IMapper mapper)
+        public Handler(DataContext dbContext, IValidator<Command> validator, ICountriesService countriesService)
         {
-            _dbContext = dbContext;
             _validator = validator;
-            //  _mapper = mapper;
+            _countriesService = countriesService;
         }
 
 
         public async Task<Result<CountryDto>> Handle(Command request, CancellationToken cancellationToken)
         {
-            var command = new UpdateCountry.Command
-            {
-                Id = request.Id,
-                Name = request.Name,
-                CostCorrectionPercentage = request.CostCorrectionPercentage,
-                CountryType = request.CountryType
-            };
-
             var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
             {
@@ -60,35 +51,9 @@ public static class UpdateCountry
                     validationResult.ToString()));
             }
 
-            var country = await _dbContext.Country.Where(x => x.Id == request.Id).FirstOrDefaultAsync(cancellationToken);
+            var result = await _countriesService.UpdateCountry(request);
 
-            if (country is null)
-            {
-                return Result.Failure<CountryDto>(new Error(
-                    "GetCountryResponse.Null",
-                    "The Country with the specified ID was not found"));
-            }
-            else
-            {
-                country.Name = command.Name;
-                country.CostCorrectionPercentage = command.CostCorrectionPercentage;
-                country.CountryType = command.CountryType.ToString();  
-            }
-
-            // = _mapper.Map<DeliveryService>(request);
-
-            _dbContext.Update(country);
-            await _dbContext.SaveChangesAsync(cancellationToken);
-
-            CountryDto countryResponse = new CountryDto()
-            {
-                Id = country.Id,
-                Name = country.Name,
-                CountryType = country.CountryType,
-                CostCorrectionPercentage = country.CostCorrectionPercentage
-            };
-
-            return countryResponse;
+            return result;
         }
     }
 
