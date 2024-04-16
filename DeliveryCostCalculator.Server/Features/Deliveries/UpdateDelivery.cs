@@ -88,7 +88,6 @@ public static class UpdateDelivery
                 delivery.Weight = request.Weight;
                 delivery.CountryId = request.CountryId;
                 delivery.DeliveryServiceId = request.DeliveryServiceId;
-                delivery.Cost = CalculateCost(request);
             }
 
             // = _mapper.Map<DeliveryService>(request);
@@ -110,22 +109,6 @@ public static class UpdateDelivery
             return deliveryResponse;
         }
 
-        private decimal CalculateCost(Command request)
-        {
-            var cost = request.Weight * request.Distance;
-
-            var serviceFormula = _dbContext.DeliveryServices.FirstOrDefault(x => x.Id == request.DeliveryServiceId);
-            if (serviceFormula != null)
-            { 
-               // Expression e = new Expression(serviceFormula.Formula);
-                //cost = e.Evaluate();
-            }
-            var country = _dbContext.Country.SingleOrDefault(x => x.Id == request.CountryId);
-            if(country != null)
-                cost = cost * (1m + country.CostCorrectionPercentage/100m); 
-            
-            return cost;
-        }
     }
 }
 public class UpdateDeliveryEndpoint : ICarterModule

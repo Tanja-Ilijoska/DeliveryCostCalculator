@@ -60,6 +60,6 @@ public class DeleteDeliveryServiceEndpoint : ICarterModule
             }
 
             return Results.Ok(result.Value);
-        });
+        }).RequireCors("AllowAll");
     }
 }

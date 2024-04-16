@@ -103,6 +103,6 @@ public class CreateDeliveryServiceEndpoint : ICarterModule
             }
 
             return Results.Ok(result.Value);
-        });
+        }).RequireCors("AllowAll");
     }
 }

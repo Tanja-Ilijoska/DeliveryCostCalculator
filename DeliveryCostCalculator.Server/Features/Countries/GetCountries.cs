@@ -34,7 +34,7 @@ public static class GetCountries
         {            
             var countryResponse = await _dbContext.Country.Select(x => new CountryResponse
             {
-                Id = request.Id,
+                Id = x.Id,
                 Name = x.Name,
                 CostCorrectionPercentage = x.CostCorrectionPercentage,
                 CountryType = x.CountryType,

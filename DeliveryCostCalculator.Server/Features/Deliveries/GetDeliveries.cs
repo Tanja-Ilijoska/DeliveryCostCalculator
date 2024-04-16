@@ -12,13 +12,6 @@ public static class GetDeliveries
 
     public class Query : IRequest<Result<List<DeliveryResponse>>>
     {
-        public int Id { get; set; }
-        public string Recipient { get; set; } = string.Empty;
-        public decimal Distance { get; set; }
-        public decimal Weight { get; set; }
-        public int CountryId { get; set; }
-        public int DeliveryServiceId { get; set; }
-        public decimal Cost { get; set; }
     }
 
     internal sealed class Handler : IRequestHandler<Query, Result<List<DeliveryResponse>>>
@@ -34,13 +27,13 @@ public static class GetDeliveries
         {
             var deliveryResponse = await _dbContext.Deliveries.Select(x => new DeliveryResponse
             {
-                Id = request.Id,
-                Weight = request.Weight,
-                CountryId = request.CountryId,
-                DeliveryServiceId = request.DeliveryServiceId,
-                Cost = request.Cost,
-                Recipient = request.Recipient,
-                Distance = request.Distance,
+                Id = x.Id,
+                Weight = x.Weight,
+                CountryId = x.CountryId,
+                DeliveryServiceId = x.DeliveryServiceId,
+                Cost = x.Cost,
+                Recipient = x.Recipient,
+                Distance = x.Distance,
             }).ToListAsync(cancellationToken);
 
             if (deliveryResponse is null)

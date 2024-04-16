@@ -17,3 +17,7 @@ th, td {
     padding-left: 1rem;
     padding-right: 1rem;
 }
+
+.css-32yp37-MuiFormControl-root-MuiTextField-root {
+    width: 55%;
+}

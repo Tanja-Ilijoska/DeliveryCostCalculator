@@ -2,7 +2,6 @@
 import { useEffect, useState } from 'react';
 import './App.css';
 import axios from 'axios';
-import AppMenuBar from './AppMenuBar';
 
 interface Delivery {
     id: number;
@@ -14,7 +13,7 @@ interface Delivery {
     cost: number;
 }
 
-function App() {
+function Deliveries() {
     const [devliveries, setDeliveries] = useState<Delivery[]>();
 
     useEffect(() => {
@@ -46,12 +45,11 @@ function App() {
         </table>;
 
     return (
-
-        <><div><AppMenuBar></AppMenuBar></div><div>
+        <div>
             <h1 id="tabelLabel">Deliveries...</h1>
             <p>This component demonstrates fetching data from the server.</p>
             {contents}
-        </div></>
+        </div>
     );
 
 
@@ -64,4 +62,4 @@ function App() {
     }
 }
 
-export default App;
+export default Deliveries;

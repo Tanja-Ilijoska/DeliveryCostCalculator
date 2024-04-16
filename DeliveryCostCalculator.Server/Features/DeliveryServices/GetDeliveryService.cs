@@ -64,6 +64,6 @@ public class GetDeliveryServiceEndpoint : ICarterModule
             }
 
             return Results.Ok(result.Value);
-        });
+        }).RequireCors("AllowAll");
     }
 }
