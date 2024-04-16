@@ -1,7 +1,7 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
+using DeliveryCostCalculator.Server.Features.DeliveryServices.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using FluentValidation;
 using MediatR;
@@ -15,7 +15,7 @@ public static class CreateDeliveryService
     {
         public required string Name { get; set; }
         public string? Formula { get; set; }
-        public ICollection<DeliveryServiceProperty>? DeliveryServiceProperties { get; set; }
+        public ICollection<DeliveryServicePropertyDto>? DeliveryServiceProperties { get; set; }
     }
 
     public class Validator : AbstractValidator<Command>

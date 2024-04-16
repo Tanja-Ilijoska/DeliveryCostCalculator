@@ -1,4 +1,4 @@
-﻿namespace DeliveryCostCalculator.Server.Contracts
+﻿namespace DeliveryCostCalculator.Server.Features.Countries.Contracts
 {
     public class UpdateCountryRequest : CreateCountryRequest
     {

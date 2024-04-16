@@ -1,7 +1,7 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
+using DeliveryCostCalculator.Server.Features.Deliveries.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Cors;
@@ -13,12 +13,12 @@ namespace DeliveryCostCalculator.Server.Features.Deliveries;
 public static class GetDelivery
 {
 
-    public class Query : IRequest<Result<DeliveryResponse>>
+    public class Query : IRequest<Result<DeliveryDto>>
     {
         public int Id { get; set; }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Result<DeliveryResponse>>
+    internal sealed class Handler : IRequestHandler<Query, Result<DeliveryDto>>
     {
         private readonly DataContext _dbContext;
 
@@ -27,9 +27,9 @@ public static class GetDelivery
             _dbContext = dbContext;
         }
 
-        public async Task<Result<DeliveryResponse>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<DeliveryDto>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var delivery = await _dbContext.Deliveries.Where(x => x.Id == request.Id).Select(x => new DeliveryResponse
+            var delivery = await _dbContext.Deliveries.Where(x => x.Id == request.Id).Select(x => new DeliveryDto
             {
                 Id = x.Id,
                 Recipient = x.Recipient,
@@ -42,7 +42,7 @@ public static class GetDelivery
 
             if (delivery is null)
             {
-                return Result.Failure<DeliveryResponse>(new Error(
+                return Result.Failure<DeliveryDto>(new Error(
                     "GetDeliveryResponse.Null",
                     "The Delivery with the specified ID was not found"));
             }

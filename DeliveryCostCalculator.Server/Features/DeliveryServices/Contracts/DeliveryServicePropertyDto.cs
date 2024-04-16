@@ -1,8 +1,8 @@
 ﻿using Microsoft.Identity.Client;
 
-namespace DeliveryCostCalculator.Server.Contracts
+namespace DeliveryCostCalculator.Server.Features.DeliveryServices.Contracts
 {
-    public class DeliveryServiceProperty
+    public class DeliveryServicePropertyDto
     {
         public int Id { get; set; }
         public int DeliveryServiceId { get; set; }

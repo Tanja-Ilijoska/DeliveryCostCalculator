@@ -1,6 +1,6 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
+using DeliveryCostCalculator.Server.Features.Countries.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
 using Microsoft.AspNetCore.Cors;
@@ -13,7 +13,7 @@ namespace DeliveryCostCalculator.Server.Features.Countries;
 public static class GetCountries
 {
 
-    public class Query : IRequest<Result<List<CountryResponse>>>
+    public class Query : IRequest<Result<List<CountryDto>>>
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;
@@ -21,7 +21,7 @@ public static class GetCountries
         public decimal CostCorrectionPercentage { get; set; }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Result<List<CountryResponse>>>
+    internal sealed class Handler : IRequestHandler<Query, Result<List<CountryDto>>>
     {
         private readonly DataContext _dbContext;
 
@@ -30,9 +30,9 @@ public static class GetCountries
             _dbContext = dbContext;
         }
 
-        public async Task<Result<List<CountryResponse>>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<List<CountryDto>>> Handle(Query request, CancellationToken cancellationToken)
         {            
-            var countryResponse = await _dbContext.Country.Select(x => new CountryResponse
+            var countryResponse = await _dbContext.Country.Select(x => new CountryDto
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -42,7 +42,7 @@ public static class GetCountries
 
             if (countryResponse is null)
             {
-                return Result.Failure<List<CountryResponse>> (new Error(
+                return Result.Failure<List<CountryDto>> (new Error(
                     "GetCountryResponse.Null",
                     "The Country Response was not found"));
             }

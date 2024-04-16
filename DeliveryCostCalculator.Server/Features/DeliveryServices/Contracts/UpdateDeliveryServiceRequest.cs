@@ -1,4 +1,4 @@
-﻿namespace DeliveryCostCalculator.Server.Contracts
+﻿namespace DeliveryCostCalculator.Server.Features.DeliveryServices.Contracts
 {
     public class UpdateDeliveryServiceRequest : CreateDeliveryServiceRequest
     {

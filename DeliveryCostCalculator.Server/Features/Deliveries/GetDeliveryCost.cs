@@ -1,10 +1,8 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
+using DeliveryCostCalculator.Server.Features.Deliveries.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
-using Microsoft.AspNetCore.Mvc;
-using Microsoft.EntityFrameworkCore;
 
 namespace DeliveryCostCalculator.Server.Features.Deliveries
 {
@@ -60,7 +58,7 @@ namespace DeliveryCostCalculator.Server.Features.Deliveries
                 }
                 var country = _dbContext.Country.SingleOrDefault(x => x.Id == request.CountryId);
                 if (country != null)
-                    cost = cost * (1m + country.CostCorrectionPercentage / 100m);
+                    cost *= (1m + country.CostCorrectionPercentage / 100m);
 
                 return cost;
             }

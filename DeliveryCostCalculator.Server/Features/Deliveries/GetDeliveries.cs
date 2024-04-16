@@ -1,6 +1,6 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
+using DeliveryCostCalculator.Server.Features.Deliveries.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,11 +10,11 @@ namespace DeliveryCostCalculator.Server.Features.Deliveries;
 public static class GetDeliveries
 {
 
-    public class Query : IRequest<Result<List<DeliveryResponse>>>
+    public class Query : IRequest<Result<List<DeliveryDto>>>
     {
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Result<List<DeliveryResponse>>>
+    internal sealed class Handler : IRequestHandler<Query, Result<List<DeliveryDto>>>
     {
         private readonly DataContext _dbContext;
 
@@ -23,9 +23,9 @@ public static class GetDeliveries
             _dbContext = dbContext;
         }
 
-        public async Task<Result<List<DeliveryResponse>>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<List<DeliveryDto>>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var deliveryResponse = await _dbContext.Deliveries.Select(x => new DeliveryResponse
+            var deliveryResponse = await _dbContext.Deliveries.Select(x => new DeliveryDto
             {
                 Id = x.Id,
                 Weight = x.Weight,
@@ -38,7 +38,7 @@ public static class GetDeliveries
 
             if (deliveryResponse is null)
             {
-                return Result.Failure<List<DeliveryResponse>>(new Error(
+                return Result.Failure<List<DeliveryDto>>(new Error(
                     "GetDeliveryResponse.Null",
                     "The Delivery Response was not found"));
             }

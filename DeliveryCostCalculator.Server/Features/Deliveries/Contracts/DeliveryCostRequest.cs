@@ -1,4 +1,4 @@
-﻿namespace DeliveryCostCalculator.Server.Contracts
+﻿namespace DeliveryCostCalculator.Server.Features.Deliveries.Contracts
 {
     public class DeliveryCostRequest
     {

@@ -21,3 +21,8 @@ th, td {
 .css-32yp37-MuiFormControl-root-MuiTextField-root {
     width: 55%;
 }
+
+.displayFlex {
+    display: flex;
+    width: 65%;
+}

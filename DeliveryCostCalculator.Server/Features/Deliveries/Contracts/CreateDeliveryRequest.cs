@@ -1,8 +1,7 @@
-﻿namespace DeliveryCostCalculator.Server.Contracts
+﻿namespace DeliveryCostCalculator.Server.Features.Deliveries.Contracts
 {
-    public class DeliveryResponse
+    public class CreateDeliveryRequest
     {
-        public int Id { get; set; }
         public string Recipient { get; set; } = string.Empty;
         public decimal Distance { get; set; }
         public decimal Weight { get; set; }

@@ -1,7 +1,7 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
+using DeliveryCostCalculator.Server.Features.Deliveries.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using FluentValidation;
 using MediatR;
@@ -14,7 +14,7 @@ namespace DeliveryCostCalculator.Server.Features.Deliveries;
 
 public static class UpdateDelivery
 {
-    public class Command : IRequest<Result<DeliveryResponse>>
+    public class Command : IRequest<Result<DeliveryDto>>
     {
         public int Id { get; set; }
         public string Recipient { get; set; } = string.Empty;
@@ -38,7 +38,7 @@ public static class UpdateDelivery
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Command, Result<DeliveryResponse>>
+    internal sealed class Handler : IRequestHandler<Command, Result<DeliveryDto>>
     {
         private readonly DataContext _dbContext;
         private readonly IValidator<Command> _validator;
@@ -52,7 +52,7 @@ public static class UpdateDelivery
         }
 
 
-        public async Task<Result<DeliveryResponse>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<DeliveryDto>> Handle(Command request, CancellationToken cancellationToken)
         {
             var command = new UpdateDelivery.Command
             {
@@ -68,7 +68,7 @@ public static class UpdateDelivery
             var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
             {
-                return Result.Failure<DeliveryResponse>(new Error(
+                return Result.Failure<DeliveryDto>(new Error(
                     "CreateDelivery.Validation",
                     validationResult.ToString()));
             }
@@ -77,7 +77,7 @@ public static class UpdateDelivery
 
             if (delivery is null)
             {
-                return Result.Failure<DeliveryResponse>(new Error(
+                return Result.Failure<DeliveryDto>(new Error(
                     "GetDeliveryResponse.Null",
                     "The Delivery with the specified ID was not found"));
             }
@@ -95,7 +95,7 @@ public static class UpdateDelivery
             _dbContext.Update(delivery);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            DeliveryResponse deliveryResponse = new DeliveryResponse()
+            DeliveryDto deliveryResponse = new DeliveryDto()
             {
                 Id = delivery.Id,
                 Distance = delivery.Distance,

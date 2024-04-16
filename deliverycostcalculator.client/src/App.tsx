@@ -3,7 +3,6 @@ import React, { useEffect, useState } from "react";
 import { useFormik } from "formik";
 import { Button, InputLabel, MenuItem, Select, SelectChangeEvent, TextField, Typography } from "@mui/material";
 import axios from "axios";
-import { number } from "yup";
 import DeliveryServices from "./DeliveryServices";
 
 
@@ -96,7 +95,7 @@ const App = () => {
     });
 
     return (
-        <div>
+        <div className="displayFlex">
             <React.Fragment>
                 <form autoComplete="off" onSubmit={formik.handleSubmit}>
                     <Typography variant="h5" fontWeight={600} mb={2}>

@@ -1,8 +1,8 @@
 ﻿using DeliveryCostCalculator.Server.Entities;
 
-namespace DeliveryCostCalculator.Server.Contracts
+namespace DeliveryCostCalculator.Server.Features.DeliveryServices.Contracts
 {
-    public class DeliveryServiceResponse
+    public class DeliveryServiceDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

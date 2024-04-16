@@ -1,6 +1,6 @@
-﻿namespace DeliveryCostCalculator.Server.Contracts
+﻿namespace DeliveryCostCalculator.Server.Features.Countries.Contracts
 {
-    public class CountryResponse
+    public class CountryDto
     {
         public int Id { get; set; }
         public string Name { get; set; } = string.Empty;

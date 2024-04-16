@@ -1,6 +1,6 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
+using DeliveryCostCalculator.Server.Features.DeliveryServices.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -10,12 +10,12 @@ namespace DeliveryCostCalculator.Server.Features.DeliveryServices;
 public static class GetDeliveryService
 {
 
-    public class Query : IRequest<Result<DeliveryServiceResponse>>
+    public class Query : IRequest<Result<DeliveryServiceDto>>
     {
         public int Id { get; set; }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Result<DeliveryServiceResponse>>
+    internal sealed class Handler : IRequestHandler<Query, Result<DeliveryServiceDto>>
     {
         private readonly DataContext _dbContext;
 
@@ -24,11 +24,11 @@ public static class GetDeliveryService
             _dbContext = dbContext;
         }
 
-        public async Task<Result<DeliveryServiceResponse>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<DeliveryServiceDto>> Handle(Query request, CancellationToken cancellationToken)
         {
             var deliveryServiceResponse = await _dbContext.DeliveryServices
                                                     .Include(x => x.DeliveryServiceProperties)
-                                                    .Where(x => x.Id == request.Id).Select(x => new DeliveryServiceResponse
+                                                    .Where(x => x.Id == request.Id).Select(x => new DeliveryServiceDto
                                                         {
                                                             Id = request.Id,
                                                             Name = x.Name,
@@ -37,7 +37,7 @@ public static class GetDeliveryService
 
             if (deliveryServiceResponse is null)
             {
-                return Result.Failure<DeliveryServiceResponse>(new Error(
+                return Result.Failure<DeliveryServiceDto>(new Error(
                     "GetDeliveryServiceResponse.Null",
                     "The Delivery Service Response with the specified ID was not found"));
             }

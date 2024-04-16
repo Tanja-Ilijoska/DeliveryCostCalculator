@@ -1,6 +1,6 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
+using DeliveryCostCalculator.Server.Features.DeliveryServices.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;
 using Microsoft.EntityFrameworkCore;
@@ -11,12 +11,12 @@ namespace DeliveryCostCalculator.Server.Features.DeliveryServices;
 public static class GetDeliveryServices
 {
 
-    public class Query : IRequest<Result<List<DeliveryServiceResponse>>>
+    public class Query : IRequest<Result<List<DeliveryServiceDto>>>
     {
         public int Id { get; set; }
     }
 
-    internal sealed class Handler : IRequestHandler<Query, Result<List<DeliveryServiceResponse>>>
+    internal sealed class Handler : IRequestHandler<Query, Result<List<DeliveryServiceDto>>>
     {
         private readonly DataContext _dbContext;
 
@@ -25,9 +25,9 @@ public static class GetDeliveryServices
             _dbContext = dbContext;
         }
 
-        public async Task<Result<List<DeliveryServiceResponse>>> Handle(Query request, CancellationToken cancellationToken)
+        public async Task<Result<List<DeliveryServiceDto>>> Handle(Query request, CancellationToken cancellationToken)
         {
-            var deliveryServiceResponse = await _dbContext.DeliveryServices.Include(x=>x.DeliveryServiceProperties).Select(x => new DeliveryServiceResponse
+            var deliveryServiceResponse = await _dbContext.DeliveryServices.Include(x=>x.DeliveryServiceProperties).Select(x => new DeliveryServiceDto
             {
                 Id = x.Id,
                 Name = x.Name,
@@ -36,7 +36,7 @@ public static class GetDeliveryServices
 
             if (deliveryServiceResponse is null)
             {
-                return Result.Failure<List<DeliveryServiceResponse>>(new Error(
+                return Result.Failure<List<DeliveryServiceDto>>(new Error(
                     "GetDeliveryServiceResponse.Null",
                     "The Delivery Service Response with the specified ID was not found"));
             }

@@ -1,5 +1,4 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Shared;
 using MediatR;

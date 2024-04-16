@@ -1,7 +1,7 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
+using DeliveryCostCalculator.Server.Features.Countries.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using FluentValidation;
 using MediatR;
@@ -12,7 +12,7 @@ namespace DeliveryCostCalculator.Server.Features.Countries;
 
 public static class UpdateCountry
 {
-    public class Command : IRequest<Result<CountryResponse>>
+    public class Command : IRequest<Result<CountryDto>>
     {
         public int Id { get; set; }
         public required string Name { get; set; }
@@ -28,7 +28,7 @@ public static class UpdateCountry
         }
     }
 
-    internal sealed class Handler : IRequestHandler<Command, Result<CountryResponse>>
+    internal sealed class Handler : IRequestHandler<Command, Result<CountryDto>>
     {
         private readonly DataContext _dbContext;
         private readonly IValidator<Command> _validator;
@@ -42,7 +42,7 @@ public static class UpdateCountry
         }
 
 
-        public async Task<Result<CountryResponse>> Handle(Command request, CancellationToken cancellationToken)
+        public async Task<Result<CountryDto>> Handle(Command request, CancellationToken cancellationToken)
         {
             var command = new UpdateCountry.Command
             {
@@ -55,7 +55,7 @@ public static class UpdateCountry
             var validationResult = _validator.Validate(request);
             if (!validationResult.IsValid)
             {
-                return Result.Failure<CountryResponse>(new Error(
+                return Result.Failure<CountryDto>(new Error(
                     "CreateCountry.Validation",
                     validationResult.ToString()));
             }
@@ -64,7 +64,7 @@ public static class UpdateCountry
 
             if (country is null)
             {
-                return Result.Failure<CountryResponse>(new Error(
+                return Result.Failure<CountryDto>(new Error(
                     "GetCountryResponse.Null",
                     "The Country with the specified ID was not found"));
             }
@@ -80,7 +80,7 @@ public static class UpdateCountry
             _dbContext.Update(country);
             await _dbContext.SaveChangesAsync(cancellationToken);
 
-            CountryResponse countryResponse = new CountryResponse()
+            CountryDto countryResponse = new CountryDto()
             {
                 Id = country.Id,
                 Name = country.Name,

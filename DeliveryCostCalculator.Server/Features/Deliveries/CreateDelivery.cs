@@ -1,7 +1,7 @@
 ﻿using Carter;
-using DeliveryCostCalculator.Server.Contracts;
 using DeliveryCostCalculator.Server.Data;
 using DeliveryCostCalculator.Server.Entities;
+using DeliveryCostCalculator.Server.Features.Deliveries.Contracts;
 using DeliveryCostCalculator.Server.Shared;
 using FluentValidation;
 using MediatR;
