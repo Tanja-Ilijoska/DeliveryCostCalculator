@@ -1,7 +1,10 @@
 ﻿using Carter;
 using DeliveryCostCalculator.Server.Data;
+using DeliveryCostCalculator.Server.Features.Countries.Services;
 using DeliveryCostCalculator.Server.Features.Deliveries.Contracts;
+using DeliveryCostCalculator.Server.Features.Deliveries.Services;
 using DeliveryCostCalculator.Server.Shared;
+using FluentValidation;
 using MediatR;
 
 namespace DeliveryCostCalculator.Server.Features.Deliveries
@@ -18,47 +21,18 @@ namespace DeliveryCostCalculator.Server.Features.Deliveries
 
         internal sealed class Handler : IRequestHandler<Query, Result<decimal>>
         {
+            private readonly ICalculationService _calculationService;
             private readonly DataContext _dbContext;
 
-            public Handler(DataContext dbContext)
+            public Handler(ICalculationService calculationService, DataContext dbContext)
             {
+                _calculationService = calculationService;
                 _dbContext = dbContext;
             }
 
             public async Task<Result<decimal>> Handle(Query request, CancellationToken cancellationToken)
             {
-                var cost = request.Weight * request.Distance;
-                var formula = "Weight * Disance";
-
-                var service = _dbContext.DeliveryServices.FirstOrDefault(x => x.Id == request.DeliveryServiceId);
-                if (service != null)
-                {
-                    foreach (var property in service.DeliveryServiceProperties.OrderBy(x => x.Order))
-                    {
-                        switch (property.Operation)
-                        {
-                            case "+":
-                                cost += property.Value;
-                                formula = $"{formula} + {property.Name}";
-                                break;
-                            case "-":
-                                cost -= property.Value;
-                                formula = $"{formula} - {property.Name}";
-                                break;
-                            case "/":
-                                cost /= property.Value;
-                                formula = $"{formula} / {property.Name}";
-                                break;
-                            case "*":
-                                cost *= property.Value;
-                                formula = $"{formula} * {property.Name}";
-                                break;
-                        }
-                    }
-                }
-                var country = _dbContext.Country.SingleOrDefault(x => x.Id == request.CountryId);
-                if (country != null)
-                    cost *= (1m + country.CostCorrectionPercentage / 100m);
+                var cost = await _calculationService.CalculateCost(request);
 
                 return cost;
             }
@@ -77,7 +51,7 @@ namespace DeliveryCostCalculator.Server.Features.Deliveries
                     CountryId = request.CountryId,
                     DeliveryServiceId = request.DeliveryServiceId,
                     Distance = request.Distance,
-                    Weight = request.Weight 
+                    Weight = request.Weight
                 };
 
                 var result = await sender.Send(query);
@@ -88,7 +62,7 @@ namespace DeliveryCostCalculator.Server.Features.Deliveries
                 }
 
                 return Results.Ok(result.Value);
-            }).RequireCors("AllowAll"); 
+            }).RequireCors("AllowAll");
         }
     }
 }

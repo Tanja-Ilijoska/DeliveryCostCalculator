@@ -14,5 +14,6 @@ namespace DeliveryCostCalculator.Server.Features.Deliveries.Services
         public Task<int> CreateDeliveryAsync(CreateDelivery.Command request);
 
         public Task<DeliveryDto> UpdateDelivery(UpdateDelivery.Command request);
+
     }
 }
